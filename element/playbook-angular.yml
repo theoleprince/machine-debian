@@ -3,7 +3,9 @@
   become: yes
   vars:
     app_name: aurorefis-frontend
-    deploy_dir: /home/test-ansible/{{ app_name }}
+    app_image_name: aurorefis-frontend-image
+    app_container_name: aurorefis-frontend-container
+    deploy_dir: /var/www/{{ app_name }}
   tasks:
     - name: Vérification de la présence de Node.js
       command: node -v
@@ -19,6 +21,11 @@
       apt:
         name: npm
         state: present
+    
+    - name: "Copie du projet"
+      copy:
+        src: /home/test-ansible/aurorefis-frontend
+        dest: /home/
 
     - name: Installation des dépendances npm
       command: npm install --force
@@ -30,20 +37,22 @@
       args:
         chdir: "{{ deploy_dir }}"
 
-    - name: Configuration du serveur web
-      template:
-        src: "{{ deploy_dir }}/nginx/nginx.conf"
-        dest: /etc/nginx/sites-enabled/aurorefis-frontend.conf
-      notify: restart nginx
+    - name: Créer une image Docker pour l'application
+      docker_image:
+        name: "{{ app_image_name }}"
+        path: "{{ deploy_dir }}"
+        state: present
 
-    - name: Déploiement de l'application
-      synchronize:
-        src: "{{ deploy_dir }}/dist/"
-        dest: /var/www/html/
-      notify: restart nginx
+    - name: Démarrer un nouveau conteneur Docker pour l'application
+      docker_container:
+        name: "{{ app_container_name }}"
+        image: "{{ app_image_name }}"
+        state: started
+        published_ports:
+          - "4300:80"
+        volumes:
+          - "{{ deploy_dir }}/dist:/usr/share/nginx/html"
 
-  handlers:
-    - name: Redémarrage de Nginx
-      systemd:
-        name: nginx
-        state: restarted
+    - name: Ajouter Nginx à ufw
+      ufw:
+        rule: "allow 'Nginx HTTP'"
