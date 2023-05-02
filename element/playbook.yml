@@ -6,3 +6,4 @@
       copy:
         src: ./monfichier.txt
         dest: /tmp/theo.txt
+# ansible-playbook -i hosts.yml --user=root playbook-mysql.yml --check
