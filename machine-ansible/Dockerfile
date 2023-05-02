@@ -10,6 +10,7 @@ RUN apt-get update && \
     apt-get install -y iputils-ping
 RUN apt-get install -y openssh-client
 RUN apt-get install -y python3
+RUN ssh-keygen -A
 
     #  && \
     # apt-get install -y openssh-clients python3 && \

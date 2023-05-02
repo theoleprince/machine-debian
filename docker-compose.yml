@@ -8,6 +8,8 @@ services:
     networks:
       ansible_network:
         ipv4_address: 10.5.0.10
+    volumes:
+      - ./element:/home/test-ansible
   ubuntu-host1:
     build: 
       context: ./machine-host

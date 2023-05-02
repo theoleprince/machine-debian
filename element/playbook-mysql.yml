@@ -1,0 +1,13 @@
+- name: "Installation de MySQL"
+  hosts: all
+  become: yes
+  tasks:
+    - name: "Mise jour de la liste des paquets"
+      apt: update_cache=yes
+
+    - name: "Installation de MySQL"
+      apt: name=mysql-server state=present
+
+  handlers:
+    - name: "redemarage de MySQL"
+      service: name=mysql state=restarted

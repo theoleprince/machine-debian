@@ -1,0 +1,49 @@
+- name: Déploiement de l'application Angular
+  hosts: all
+  become: yes
+  vars:
+    app_name: aurorefis-frontend
+    deploy_dir: /home/test-ansible/{{ app_name }}
+  tasks:
+    - name: Vérification de la présence de Node.js
+      command: node -v
+      register: node_check
+      ignore_errors: true
+
+    - name: "Installation de Node.js"
+      apt:
+        name: nodejs
+        state: present
+
+    - name: Installation de npm
+      apt:
+        name: npm
+        state: present
+
+    - name: Installation des dépendances npm
+      command: npm install --force
+      args:
+        chdir: "{{ deploy_dir }}"
+
+    - name: Compilation de l'application Angular
+      command: ng build --prod
+      args:
+        chdir: "{{ deploy_dir }}"
+
+    - name: Configuration du serveur web
+      template:
+        src: "{{ deploy_dir }}/nginx/nginx.conf"
+        dest: /etc/nginx/sites-enabled/aurorefis-frontend.conf
+      notify: restart nginx
+
+    - name: Déploiement de l'application
+      synchronize:
+        src: "{{ deploy_dir }}/dist/"
+        dest: /var/www/html/
+      notify: restart nginx
+
+  handlers:
+    - name: Redémarrage de Nginx
+      systemd:
+        name: nginx
+        state: restarted
