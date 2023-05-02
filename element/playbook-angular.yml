@@ -25,7 +25,7 @@
     - name: "Copie du projet"
       copy:
         src: /home/test-ansible/aurorefis-frontend
-        dest: /home/
+        dest: /var/www/
 
     - name: Installation des dépendances npm
       command: npm install --force
