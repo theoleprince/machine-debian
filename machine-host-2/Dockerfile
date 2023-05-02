@@ -1,11 +1,13 @@
 FROM ubuntu:20.04
 # ARG USER_PASSWORD
 RUN apt-get update && \
-    apt-get install -y openssh-server openssh-clients && \
+    apt-get install -y openssh-server openssh-client && \
     apt-get install -y python3 && \
     apt-get install nano sudo -y && \
     apt-get install curl sudo -y && \
-    apt-get install software-properties-common sudo -y
+    apt-get install software-properties-common sudo -y && \
+    apt-get install net-tools sudo -y && \
+    apt-get install -y iputils-ping
 # RUN echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
 RUN mkdir /var/run/sshd
 RUN echo 'root:password' | chpasswd
